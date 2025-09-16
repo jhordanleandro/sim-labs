@@ -1,0 +1,8 @@
+Options -Indexes
+AddType application/json .json
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/json "access plus 1 day"
+</IfModule>

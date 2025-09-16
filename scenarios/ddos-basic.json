@@ -1,0 +1,222 @@
+{
+  "name": "DDoS Básico",
+  "dict": {
+    "pt": {
+      "simulation_started": "Simulação iniciada",
+      "simulation_running": "Simulação em andamento",
+      "simulation_finished": "Simulação finalizada",
+      "control_applied": "Controle aplicado",
+      "target_resolution": "Resolvendo alvo...",
+      "ip_generation": "Gerando IPs de ataque...",
+      "packet_flood": "Iniciando inundação de pacotes...",
+      "generated_ips": "IPs gerados",
+      "RPS": "Requisições/s",
+      "latency": "Latência (ms)",
+      "errors": "Erros",
+      "theory_target_resolution_1": "Nesta etapa simulamos a resolução do alvo (DNS). Na vida real, o atacante identifica o endereço IP do domínio para direcionar o tráfego malicioso.",
+      "theory_target_resolution_2": "Conceito: DNS é uma base distribuída que traduz nomes legíveis em endereços IP.",
+      "theory_ip_generation_1": "Geramos IPs de origem falsos (spoofing) para simular diversos agentes. Em ataques reais, botnets ou técnicas de amplificação geram grande dispersão de IPs.",
+      "theory_ip_generation_2": "Conceito: IP spoofing dificulta mitigação baseada em bloqueio simples de origem.",
+      "theory_packet_flood_1": "Inundação de pacotes aumenta RPS e latência simulada. O objetivo é exaurir recursos do serviço (CPU, largura de banda ou filas).",
+      "theory_packet_flood_2": "Defesas: WAF pode filtrar padrões, Rate Limit impõe limiar de requisições e CDN absorve parte do tráfego distribuindo a carga.",
+      "theory_final_1": "Quando o alvo fica 'indisponível' nesta simulação, significa que os recursos foram saturados. Em ambiente real, monitoramento pró-ativo e escalabilidade elástica reduzem impacto."
+    },
+    "en": {
+      "simulation_started": "Simulation started",
+      "simulation_running": "Simulation running",
+      "simulation_finished": "Simulation finished",
+      "control_applied": "Control applied",
+      "target_resolution": "Resolving target...",
+      "ip_generation": "Generating attack IPs...",
+      "packet_flood": "Starting packet flood...",
+      "generated_ips": "Generated IPs",
+      "RPS": "Requests/s",
+      "latency": "Latency (ms)",
+      "errors": "Errors",
+      "theory_target_resolution_1": "We simulate target name resolution (DNS). In real scenarios attackers map domain names to IP addresses to focus traffic.",
+      "theory_target_resolution_2": "Concept: DNS is a distributed database translating human names to IP addresses.",
+      "theory_ip_generation_1": "We generate spoofed source IPs to emulate many agents. Real attacks may leverage botnets or amplification for diversity.",
+      "theory_ip_generation_2": "Concept: IP spoofing makes simple source blocking harder.",
+      "theory_packet_flood_1": "Packet flooding raises RPS and latency—goal is to exhaust service resources (CPU, bandwidth, queues).",
+      "theory_packet_flood_2": "Defenses: WAF pattern filtering, Rate Limiting caps request bursts, CDN absorbs and distributes load.",
+      "theory_final_1": "Target 'unavailability' means simulated resource saturation. Real mitigation: proactive monitoring + elastic scaling."
+    }
+  },
+  "metrics": {
+    "initial": {
+      "RPS": 0,
+      "latency": 20,
+      "errors": 0
+    },
+    "schema": {
+      "RPS": {},
+      "latency": {},
+      "errors": {}
+    }
+  },
+  "controls": {
+    "initial": {
+      "waf": false,
+      "ratelimit": 100,
+      "cdn": false
+    },
+    "schema": {
+      "waf": {
+        "type": "checkbox"
+      },
+      "ratelimit": {
+        "type": "range",
+        "min": 10,
+        "max": 1000
+      },
+      "cdn": {
+        "type": "checkbox"
+      }
+    },
+    "effects": {
+      "waf": "function(state, scenario, value, log, t, dict) { if(value) { state.metrics.errors += 5; log(t('WAF ativado', dict)); } }",
+      "ratelimit": "function(state, scenario, value, log, t, dict) { state.metrics.RPS = Math.min(state.metrics.RPS, value); log(t('Limite de taxa ajustado', dict)); }",
+      "cdn": "function(state, scenario, value, log, t, dict) { if(value) { state.metrics.latency -= 5; log(t('CDN ativada', dict)); } }"
+    }
+  },
+  "metricHints": {
+    "RPS": {
+      "gt": [
+        {
+          "value": 100,
+          "msg": "RPS acima de 100: risco de saturação"
+        }
+      ],
+      "deltaUp": [
+        {
+          "value": 40,
+          "msg": "Aumento brusco de RPS detectado"
+        }
+      ]
+    },
+    "latency": {
+      "gt": [
+        {
+          "value": 50,
+          "msg": "Latência elevada: possível sobrecarga"
+        }
+      ],
+      "deltaUp": [
+        {
+          "value": 20,
+          "msg": "Latência aumentou rapidamente"
+        }
+      ]
+    },
+    "errors": {
+      "gt": [
+        {
+          "value": 1,
+          "msg": "Erros crescentes: revisar filtragem"
+        }
+      ]
+    }
+  },
+  "theory": {
+    "target_resolution": [
+      "theory_target_resolution_1",
+      "theory_target_resolution_2"
+    ],
+    "ip_generation": [
+      "theory_ip_generation_1",
+      "theory_ip_generation_2"
+    ],
+    "packet_flood": [
+      "theory_packet_flood_1",
+      "theory_packet_flood_2"
+    ],
+    "final": [
+      "theory_final_1"
+    ]
+  },
+  "questions": {
+    "target_resolution": [
+      {
+        "id": "dns-role",
+        "question": "Qual o principal papel do DNS nesta fase?",
+        "options": [
+          "Traduzir domínios em endereços IP",
+          "Criptografar tráfego de origem",
+          "Balancear carga entre servidores",
+          "Bloquear IPs maliciosos"
+        ],
+        "answer": 0,
+        "explain": "Sem resolver o nome para IP o atacante não direciona tráfego ao destino exato."
+      }
+    ],
+    "ip_generation": [
+      {
+        "id": "spoof-benefit",
+        "question": "Por que o spoofing de IP dificulta mitigação?",
+        "options": [
+          "Porque reduz latência",
+          "Porque aumenta entropia de origem",
+          "Porque cifra os pacotes",
+          "Porque impede roteamento"
+        ],
+        "answer": 1,
+        "explain": "Origem diversa torna bloqueio baseado em listas específicas menos efetivo."
+      }
+    ],
+    "packet_flood": [
+      {
+        "id": "defense-match",
+        "question": "Qual defesa está mais diretamente ligada a limitar volume bruto de requisições?",
+        "options": [
+          "CDN",
+          "Rate Limit",
+          "WAF",
+          "DNSSEC"
+        ],
+        "answer": 1,
+        "explain": "Rate limiting define limiar de requisições por janela de tempo."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "title": "target_resolution",
+      "actions": [
+        {
+          "log": "target_resolution",
+          "delay": 800
+        }
+      ]
+    },
+    {
+      "title": "ip_generation",
+      "actions": [
+        {
+          "special": "generate_ips",
+          "delay": 600
+        }
+      ]
+    },
+    {
+      "title": "packet_flood",
+      "actions": [
+        {
+          "log": "packet_flood",
+          "metrics": {
+            "RPS": 80,
+            "latency": 40
+          },
+          "delay": 1000
+        },
+        {
+          "metrics": {
+            "RPS": 120,
+            "latency": 60,
+            "errors": 2
+          },
+          "delay": 1000
+        }
+      ]
+    }
+  ]
+}

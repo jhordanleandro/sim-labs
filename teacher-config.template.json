@@ -1,0 +1,178 @@
+{
+  "course": {
+    "name": {
+      "pt": "Segurança em Sistemas de Informação / Redes de Computadores",
+      "en": "Information Security / Computer Networks"
+    },
+    "period": "2025.2",
+    "assessments": [
+      "A1",
+      "A2"
+    ]
+  },
+  "objectives": [
+    {
+      "id": "OBJ-REDES-OSI",
+      "pt": "Compreender camadas OSI/TCP-IP e principais protocolos.",
+      "en": "Understand OSI/TCP-IP layers and key protocols."
+    },
+    {
+      "id": "OBJ-REDES-VLAN",
+      "pt": "Aplicar segmentação via VLAN, firewall e NAT.",
+      "en": "Apply segmentation via VLAN, firewall and NAT."
+    },
+    {
+      "id": "OBJ-SEG-CIA",
+      "pt": "Relacionar requisitos CIA e controles de acesso.",
+      "en": "Relate CIA requirements and access control."
+    },
+    {
+      "id": "OBJ-SEG-CRYPTO",
+      "pt": "Diferenciar cifragem simétrica/assimétrica e hash.",
+      "en": "Differentiate symmetric/asymmetric crypto and hashing."
+    },
+    {
+      "id": "OBJ-SEG-LGPD",
+      "pt": "Reconhecer princípios da LGPD e gestão ISO 27001.",
+      "en": "Recognize LGPD principles and ISO 27001 management."
+    }
+  ],
+  "rubric": [
+    {
+      "criterion": "quiz_accuracy",
+      "weight": 0.4,
+      "desc_pt": "Acertos em quizzes por cenário.",
+      "desc_en": "Quiz accuracy per scenario."
+    },
+    {
+      "criterion": "controls_effectiveness",
+      "weight": 0.4,
+      "desc_pt": "Aplicação de controles que reduzem risco/impacto.",
+      "desc_en": "Applying controls that reduce risk/impact."
+    },
+    {
+      "criterion": "report_quality",
+      "weight": 0.2,
+      "desc_pt": "Análise do relatório exportado (interpretação).",
+      "desc_en": "Analysis of exported report (interpretation)."
+    }
+  ],
+  "schedule": [
+    {
+      "week": 1,
+      "scenario": "ddos-basic",
+      "links_objectives": [
+        "OBJ-SEG-CIA"
+      ],
+      "assessment": "A1"
+    },
+    {
+      "week": 2,
+      "scenario": "sqli-basic",
+      "links_objectives": [
+        "OBJ-SEG-CIA"
+      ],
+      "assessment": "A1"
+    },
+    {
+      "week": 3,
+      "scenario": "arp-spoof",
+      "links_objectives": [
+        "OBJ-REDES-OSI"
+      ],
+      "assessment": "A1"
+    }
+  ],
+  "thresholds": {
+    "ddos-basic": {
+      "RPS": {
+        "gt": 5000,
+        "message": {
+          "pt": "Tráfego muito alto: considere rate limit.",
+          "en": "High traffic: consider rate limiting."
+        }
+      },
+      "latency_ms": {
+        "gt": 800,
+        "message": {
+          "pt": "Latência excessiva: ative CDN ou WAF.",
+          "en": "Excessive latency: enable CDN or WAF."
+        }
+      },
+      "errors_pct": {
+        "gt": 15,
+        "message": {
+          "pt": "Erros elevam indisponibilidade.",
+          "en": "Errors increase unavailability."
+        }
+      }
+    },
+    "sqli-basic": {
+      "exposed_records": {
+        "gt": 1,
+        "message": {
+          "pt": "Registros expostos: aplique sanitização.",
+          "en": "Records exposed: apply sanitization."
+        }
+      }
+    },
+    "arp-spoof": {
+      "spoofed_packets": {
+        "gt": 20,
+        "message": {
+          "pt": "ARP spoof detectado: habilite Port Security.",
+          "en": "ARP spoof detected: enable Port Security."
+        }
+      }
+    }
+  },
+  "quizzes": {
+    "ddos-basic": {
+      "pre": {
+        "question": {
+          "pt": "O que é DDoS?",
+          "en": "What is DDoS?"
+        },
+        "options": [
+          {
+            "text": {
+              "pt": "Um ataque de sobrecarga de serviços.",
+              "en": "An overload attack on services."
+            },
+            "correct": true
+          },
+          {
+            "text": {
+              "pt": "Uma atualização de servidor.",
+              "en": "A server update."
+            },
+            "correct": false
+          }
+        ]
+      },
+      "post": {
+        "question": {
+          "pt": "Qual controle reduziu a latência?",
+          "en": "Which control reduced latency?"
+        },
+        "options": [
+          {
+            "text": {
+              "pt": "CDN",
+              "en": "CDN"
+            },
+            "correct": true
+          },
+          {
+            "text": {
+              "pt": "Abrir todas as portas.",
+              "en": "Open all ports."
+            },
+            "correct": false
+          }
+        ]
+      }
+    }
+  },
+  "language": "pt"
+}

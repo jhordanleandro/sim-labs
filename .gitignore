@@ -1,0 +1,30 @@
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Env/config secrets
+.env
+api/.env
+admin_token.txt
+data/admin_token.txt
+
+# SQLite and other local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Build/output archives
+*.zip
+*.tar
+*.tar.gz
+
+# Data directory: keep folder, ignore contents except protected files
+data/**
+!data/.htaccess
+!data/README.md

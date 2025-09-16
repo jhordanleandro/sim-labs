@@ -1,0 +1,182 @@
+{
+  "name": "SQL Injection",
+  "dict": {
+    "pt": {
+      "simulation_started": "Simulação iniciada",
+      "simulation_running": "Simulação em andamento",
+      "simulation_finished": "Simulação finalizada",
+      "control_applied": "Controle aplicado",
+      "original_query": "Consulta original executada.",
+      "injection_attempt": "Tentativa de injeção detectada!",
+      "data_leak": "Dados expostos!",
+      "exposed_records": "Registros expostos",
+      "theory_original_query_1": "A aplicação executa uma consulta legítima ao banco de dados.",
+      "theory_original_query_2": "Boas práticas: uso de parâmetros e princípio do menor privilégio.",
+      "theory_injection_attempt_1": "Tentativa de injeção insere elementos de linguagem SQL para alterar a lógica da consulta.",
+      "theory_injection_attempt_2": "Exemplo clássico: ' OR '1'='1 --",
+      "theory_data_leak_1": "Sem sanitização, a consulta manipulada pode expor dados sensíveis.",
+      "theory_data_leak_2": "Mitigações: Prepared Statements, WAF com regras para padrões de ataque, sanitização de entrada e validação de tipos.",
+      "theory_final_1": "Defesa em profundidade: combinar parametrização + validação + monitoramento + princípio de privilégios mínimos."
+    },
+    "en": {
+      "simulation_started": "Simulation started",
+      "simulation_running": "Simulation running",
+      "simulation_finished": "Simulation finished",
+      "control_applied": "Control applied",
+      "original_query": "Original query executed.",
+      "injection_attempt": "Injection attempt detected!",
+      "data_leak": "Data exposed!",
+      "exposed_records": "Exposed records",
+      "theory_original_query_1": "The application executes a legitimate database query.",
+      "theory_original_query_2": "Best practice: parameter binding and least privilege principle.",
+      "theory_injection_attempt_1": "Injection attempt inserts SQL language tokens to alter logic.",
+      "theory_injection_attempt_2": "Classic example: ' OR '1'='1 --",
+      "theory_data_leak_1": "Without sanitization the manipulated query may expose sensitive data.",
+      "theory_data_leak_2": "Mitigations: Prepared Statements, WAF rules, input sanitization, type validation.",
+      "theory_final_1": "Defense in depth: combine parametrization, validation, monitoring, least privilege."
+    }
+  },
+  "metrics": {
+    "initial": {
+      "exposed_records": 0
+    },
+    "schema": {
+      "exposed_records": {}
+    }
+  },
+  "controls": {
+    "initial": {
+      "param": false,
+      "waf": false,
+      "sanitize": false
+    },
+    "schema": {
+      "param": {
+        "type": "checkbox"
+      },
+      "waf": {
+        "type": "checkbox"
+      },
+      "sanitize": {
+        "type": "checkbox"
+      }
+    },
+    "effects": {
+      "param": "function(state, scenario, value, log, t, dict) { if(value) { state.metrics.exposed_records = 0; log(t('Parâmetros ativados', dict)); } }",
+      "waf": "function(state, scenario, value, log, t, dict) { if(value) { state.metrics.exposed_records = 0; log(t('WAF ativado', dict)); } }",
+      "sanitize": "function(state, scenario, value, log, t, dict) { if(value) { state.metrics.exposed_records = 0; log(t('Sanitização ativada', dict)); } }"
+    }
+  },
+  "metricHints": {
+    "exposed_records": {
+      "gt": [
+        {
+          "value": 0,
+          "msg": "Registros expostos: aplique parametrização e sanitização"
+        }
+      ],
+      "deltaUp": [
+        {
+          "value": 50,
+          "msg": "Pico de exposição detectado"
+        }
+      ]
+    }
+  },
+  "theory": {
+    "original_query": [
+      "theory_original_query_1",
+      "theory_original_query_2"
+    ],
+    "injection_attempt": [
+      "theory_injection_attempt_1",
+      "theory_injection_attempt_2"
+    ],
+    "data_leak": [
+      "theory_data_leak_1",
+      "theory_data_leak_2"
+    ],
+    "final": [
+      "theory_final_1"
+    ]
+  },
+  "questions": {
+    "original_query": [
+      {
+        "id": "least-privilege",
+        "question": "Qual vantagem direta do princípio do menor privilégio para SQL Injection?",
+        "options": [
+          "Reduz superfície de comandos perigosos",
+          "Aumenta velocidade da query",
+          "Elimina necessidade de parâmetros",
+          "Garante criptografia de disco"
+        ],
+        "answer": 0,
+        "explain": "Menos privilégios limitam impacto mesmo que haja injeção bem-sucedida."
+      }
+    ],
+    "injection_attempt": [
+      {
+        "id": "payload-nature",
+        "question": "O payload ' OR '1'='1 -- busca principalmente:",
+        "options": [
+          "Encerrar a consulta e comentar o restante",
+          "Criar índice temporário",
+          "Ativar replicação",
+          "Forçar rollback"
+        ],
+        "answer": 0,
+        "explain": "O operador OR torna condição sempre verdadeira e '--' comenta o restante."
+      }
+    ],
+    "data_leak": [
+      {
+        "id": "mitigation-priority",
+        "question": "Qual técnica reduz efetivamente manipulação da estrutura da query?",
+        "options": [
+          "Prepared Statements",
+          "Cache de página",
+          "Compressão HTTP",
+          "Pagination front-end"
+        ],
+        "answer": 0,
+        "explain": "Prepared Statements separam código de dados evitando concatenação perigosa."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "title": "original_query",
+      "actions": [
+        {
+          "log": "original_query",
+          "delay": 700
+        }
+      ]
+    },
+    {
+      "title": "injection_attempt",
+      "actions": [
+        {
+          "log": "injection_attempt",
+          "metrics": {
+            "exposed_records": 50
+          },
+          "delay": 1000
+        }
+      ]
+    },
+    {
+      "title": "data_leak",
+      "actions": [
+        {
+          "log": "data_leak",
+          "metrics": {
+            "exposed_records": 100
+          },
+          "delay": 1000
+        }
+      ]
+    }
+  ]
+}

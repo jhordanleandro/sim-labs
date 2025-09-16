@@ -1,0 +1,150 @@
+{
+  "name": "ARP Spoof",
+  "dict": {
+    "pt": {
+      "simulation_started": "Simulação iniciada",
+      "simulation_running": "Simulação em andamento",
+      "simulation_finished": "Simulação finalizada",
+      "control_applied": "Controle aplicado",
+      "arp_spoofing": "Enviando pacotes ARP falsos...",
+      "traffic_redirect": "Redirecionando tráfego...",
+      "draw_topology": "Desenhando topologia de rede...",
+      "spoofed_packets": "Pacotes ARP falsos",
+      "theory_arp_spoofing_1": "ARP Spoofing explora ausência de autenticação no ARP para associar o MAC do atacante ao IP da vítima.",
+      "theory_arp_spoofing_2": "Resultado: hosts passam a enviar tráfego ao agressor acreditando ser o gateway ou outro host legítimo.",
+      "theory_traffic_redirect_1": "Com o redirecionamento, o atacante pode realizar Man-in-the-Middle, sniffing ou injeção.",
+      "theory_traffic_redirect_2": "Mitigações: Port Security limita MACs por porta; DHCP Snooping alimente Dynamic ARP Inspection em switches gerenciados.",
+      "theory_final_1": "Segmentação de rede, monitoramento de ARP anômalo e uso de protocolos seguros (HTTPS, SSH) reduzem impacto do ataque."
+    },
+    "en": {
+      "simulation_started": "Simulation started",
+      "simulation_running": "Simulation running",
+      "simulation_finished": "Simulation finished",
+      "control_applied": "Control applied",
+      "arp_spoofing": "Sending fake ARP packets...",
+      "traffic_redirect": "Redirecting traffic...",
+      "draw_topology": "Drawing network topology...",
+      "spoofed_packets": "Fake ARP packets",
+      "theory_arp_spoofing_1": "ARP spoofing abuses lack of authentication to bind attacker MAC to victim IP.",
+      "theory_arp_spoofing_2": "Result: hosts forward traffic to the attacker believing it is the gateway or legitimate host.",
+      "theory_traffic_redirect_1": "With redirection the attacker can perform MITM, sniffing or injection.",
+      "theory_traffic_redirect_2": "Mitigations: Port Security limits MACs per port; DHCP Snooping feeds Dynamic ARP Inspection on managed switches.",
+      "theory_final_1": "Network segmentation, anomalous ARP monitoring and secure protocols (HTTPS, SSH) reduce impact."
+    }
+  },
+  "metrics": {
+    "initial": {
+      "spoofed_packets": 0
+    },
+    "schema": {
+      "spoofed_packets": {}
+    }
+  },
+  "controls": {
+    "initial": {
+      "portsec": false,
+      "dhcp": false
+    },
+    "schema": {
+      "portsec": {
+        "type": "checkbox"
+      },
+      "dhcp": {
+        "type": "checkbox"
+      }
+    },
+    "effects": {
+      "portsec": "function(state, scenario, value, log, t, dict) { if(value) { state.metrics.spoofed_packets = 0; log(t('Port Security ativado', dict)); } }",
+      "dhcp": "function(state, scenario, value, log, t, dict) { if(value) { state.metrics.spoofed_packets = 0; log(t('DHCP Snooping ativado', dict)); } }"
+    }
+  },
+  "metricHints": {
+    "spoofed_packets": {
+      "gt": [
+        {
+          "value": 10,
+          "msg": "Aumento de ARP falsos: verifique Port Security"
+        }
+      ],
+      "deltaUp": [
+        {
+          "value": 20,
+          "msg": "Explosão de ARP detectada"
+        }
+      ]
+    }
+  },
+  "theory": {
+    "arp_spoofing": [
+      "theory_arp_spoofing_1",
+      "theory_arp_spoofing_2"
+    ],
+    "traffic_redirect": [
+      "theory_traffic_redirect_1",
+      "theory_traffic_redirect_2"
+    ],
+    "final": [
+      "theory_final_1"
+    ]
+  },
+  "questions": {
+    "arp_spoofing": [
+      {
+        "id": "arp-lack",
+        "question": "Qual fraqueza do ARP explorada pelo ataque?",
+        "options": [
+          "Ausência de autenticação",
+          "Criptografia fraca TLS",
+          "Checksum inválido",
+          "TTL baixo"
+        ],
+        "answer": 0,
+        "explain": "ARP não valida a autenticidade do emissor, permitindo respostas falsas."
+      }
+    ],
+    "traffic_redirect": [
+      {
+        "id": "mitigation",
+        "question": "Qual controle ajuda a alimentar Dynamic ARP Inspection?",
+        "options": [
+          "DHCP Snooping",
+          "Port Mirroring",
+          "Spanning Tree",
+          "QoS Shaping"
+        ],
+        "answer": 0,
+        "explain": "DHCP Snooping constrói tabela de bindings usada pelo DAI para validar ARP."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "title": "arp_spoofing",
+      "actions": [
+        {
+          "log": "arp_spoofing",
+          "metrics": {
+            "spoofed_packets": 20
+          },
+          "delay": 900
+        },
+        {
+          "special": "draw_topology",
+          "delay": 500
+        }
+      ]
+    },
+    {
+      "title": "traffic_redirect",
+      "actions": [
+        {
+          "log": "traffic_redirect",
+          "metrics": {
+            "spoofed_packets": 40
+          },
+          "delay": 1000
+        }
+      ]
+    }
+  ]
+}

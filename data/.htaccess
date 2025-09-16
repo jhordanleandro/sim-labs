@@ -1,0 +1,3 @@
+# nega acesso direto a arquivos na pasta data
+Order deny,allow
+Deny from all

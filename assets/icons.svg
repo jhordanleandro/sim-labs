@@ -1,0 +1,11 @@
+<!-- icons.svg - ícones simples para UI (pode ser expandido) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="icon-attack" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="#f44336"/>
+    <path d="M12 6v6l4 2" stroke="#fff" stroke-width="2" fill="none"/>
+  </symbol>
+  <symbol id="icon-defense" viewBox="0 0 24 24">
+    <rect x="4" y="4" width="16" height="16" rx="4" fill="#4caf50"/>
+    <path d="M8 12l2 2 4-4" stroke="#fff" stroke-width="2" fill="none"/>
+  </symbol>
+</svg>
