@@ -28,3 +28,6 @@ data/admin_token.txt
 data/**
 !data/.htaccess
 !data/README.md
+
+# Misc session/cookie files used in curl tests
+cookies.txt
