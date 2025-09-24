@@ -12,8 +12,19 @@
 
 <body>
   <header class="py-4 text-center">
-    <h1 class="display-6">Simulador Educacional de Redes e Segurança</h1>
-    <p class="sim-warning">Esta é uma simulação 100% offline para fins didáticos. Nenhum tráfego real é gerado.</p>
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3">
+      <div>
+        <h1 class="display-6 mb-0" data-i18n="title">Simulador Educacional de Redes e Segurança</h1>
+        <p class="sim-warning mb-0" data-i18n="offline_note">Esta é uma simulação 100% offline para fins didáticos. Nenhum tráfego real é gerado.</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label for="lang-select" class="form-label mb-0" data-i18n="language">Idioma</label>
+        <select id="lang-select" class="form-select form-select-sm" style="width:auto">
+          <option value="pt">PT</option>
+          <option value="en">EN</option>
+        </select>
+      </div>
+    </div>
   </header>
   <main class="container my-3">
     <section id="auth-panel" class="card p-3 mb-3">
@@ -80,29 +91,32 @@
       </section>
 
       <section id="metrics-panel" class="card p-3 mb-3">
-        <h2 class="h5">Métricas</h2>
+        <h2 class="h5" data-i18n="metrics">Métricas</h2>
         <div id="metrics" class="mb-2"></div>
         <canvas id="metrics-graph" width="400" height="120"></canvas>
       </section>
       <section id="controls-panel" class="card p-3 mb-3">
-        <h2 class="h5">Controles</h2>
+        <h2 class="h5" data-i18n="controls">Controles</h2>
         <form id="controls" class="d-flex flex-wrap gap-2"></form>
       </section>
       <section id="log-panel" class="card p-3 mb-3">
-        <h2 class="h5">Logs</h2>
+        <h2 class="h5" data-i18n="logs">Logs</h2>
         <div id="logs"></div>
       </section>
       <section id="theory-panel" class="card p-3 mb-3">
-        <h2 class="h5">Teoria / Explicação</h2>
+        <h2 class="h5" data-i18n="theory">Teoria / Explicação</h2>
         <div id="theory" class="theory-box"></div>
       </section>
       <section id="quiz-panel" class="card p-3 mb-3">
-        <h2 class="h5">Quiz</h2>
+        <h2 class="h5" data-i18n="quiz">Quiz</h2>
         <div id="quiz"></div>
       </section>
 
       <section id="results-panel" class="card p-3 mb-3" style="display:none">
-        <h2 class="h5">Resultados</h2>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h2 class="h5 mb-0" data-i18n="results">Resultados</h2>
+          <button id="btn-export-csv" type="button" class="btn btn-sm btn-outline-info" data-i18n="export_csv">Exportar CSV</button>
+        </div>
         <div class="row g-2 align-items-end mb-2 filters">
           <div class="col-12 col-md-4"><input id="filter-scenario" class="form-control"
               placeholder="Cenário (ex.: ddos-basic)"></div>

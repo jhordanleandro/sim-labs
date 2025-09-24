@@ -162,10 +162,12 @@ const Engine = (function() {
   function exportResults() {
     return {
       scenario: scenario.name,
+      scenario_slug: scenario.slug || null,
       metrics: state.metrics,
       controls: state.controls,
       logs: state.logs,
-      history: state.history
+      history: state.history,
+      exported_at: new Date().toISOString()
     };
   }
 

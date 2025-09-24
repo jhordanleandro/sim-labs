@@ -33,11 +33,45 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnFilter = document.getElementById('btn-filter');
   const appContent = document.getElementById('app-content');
   const loginRequired = document.getElementById('login-required');
+  const langSelect = document.getElementById('lang-select');
+  const btnExportCsv = document.getElementById('btn-export-csv');
 
   let currentScenario = null;
   let metricsHistory = [];
   let lang = 'pt';
   let session = { user: null };
+  const uiDict = {
+    pt: {
+      title: 'Simulador Educacional de Redes e Segurança',
+      offline_note: 'Esta é uma simulação 100% offline para fins didáticos. Nenhum tráfego real é gerado.',
+      language: 'Idioma', metrics: 'Métricas', controls: 'Controles', logs: 'Logs', theory: 'Teoria / Explicação', quiz: 'Quiz', results: 'Resultados', export_csv: 'Exportar CSV',
+      initiating: 'Iniciar Simulação', export_results: 'Exportar Resultados', summary: 'Mostrar Resumo', correct: 'Correto!', wrong: 'Incorreto.'
+    },
+    en: {
+      title: 'Educational Network & Security Simulator',
+      offline_note: 'This is a 100% offline didactic simulation. No real traffic is generated.',
+      language: 'Language', metrics: 'Metrics', controls: 'Controls', logs: 'Logs', theory: 'Theory / Explanation', quiz: 'Quiz', results: 'Results', export_csv: 'Export CSV',
+      initiating: 'Start Simulation', export_results: 'Export Results', summary: 'Show Summary', correct: 'Correct!', wrong: 'Incorrect.'
+    }
+  };
+
+  function applyUiTranslations() {
+    const d = uiDict[lang] || uiDict.pt;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (d[key]) el.textContent = d[key];
+    });
+  }
+
+  langSelect?.addEventListener('change', () => {
+    lang = langSelect.value;
+    applyUiTranslations();
+    if (currentScenario) {
+      Engine.setLang(lang);
+      // Recarrega cenário para atualizar dicionário
+      loadSelectedScenario();
+    }
+  });
 
   async function api(path, method='GET', body) {
     const opts = { method, headers: {} };
@@ -176,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const file = scenarioSelect.value;
     const resp = await fetch('scenarios/' + file);
     const data = await resp.json();
+    data.slug = file.replace(/\.json$/,'');
     currentScenario = data;
     metricsHistory = [];
     Engine.loadScenario(data, { lang, target: targetInput.value });
@@ -266,7 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function giveFeedback(correct, block, q) {
     const fb = block.querySelector('.quiz-feedback');
-    fb.textContent = correct ? 'Correto!' : 'Incorreto.';
+  const d = uiDict[lang] || uiDict.pt;
+  fb.textContent = correct ? d.correct : d.wrong;
     fb.classList.remove('quiz-correct','quiz-wrong');
     fb.classList.add(correct ? 'quiz-correct' : 'quiz-wrong');
     if (q.explain) {
@@ -304,18 +340,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botão iniciar
   const startBtn = document.createElement('button');
   startBtn.type = 'button';
-  startBtn.textContent = 'Iniciar Simulação';
+  startBtn.textContent = (uiDict[lang]||uiDict.pt).initiating;
   startBtn.onclick = () => Engine.start(targetInput.value);
   controlsForm.appendChild(startBtn);
     // Botão exportar
     const exportBtn = document.createElement('button');
     exportBtn.type = 'button';
-    exportBtn.textContent = 'Exportar Resultados';
+    exportBtn.textContent = (uiDict[lang]||uiDict.pt).export_results;
     exportBtn.onclick = async () => {
       const data = Engine.exportResults();
+      data.exported_at = new Date().toISOString();
+      data.scenario_slug = currentScenario?.slug;
       if (session.user) {
         try {
-          const res = await api('save_result.php','POST',{ scenario: currentScenario?.id || currentScenario?.name || 'scenario', payload: data });
+          const res = await api('save_result.php','POST',{ scenario: currentScenario?.slug || currentScenario?.id || currentScenario?.name || 'scenario', payload: data });
           if (res.ok) {
             authStatus.textContent = 'Resultados enviados ao servidor.';
             loadResults();
@@ -336,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botão mostrar resumo (teoria.final)
     const summaryBtn = document.createElement('button');
     summaryBtn.type = 'button';
-    summaryBtn.textContent = 'Mostrar Resumo';
+    summaryBtn.textContent = (uiDict[lang]||uiDict.pt).summary;
     summaryBtn.onclick = () => {
       if (currentScenario && currentScenario.theory && currentScenario.theory.final) {
         // Reaproveita mecanismo de teoria adicionando manualmente
@@ -409,5 +447,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Inicializa
+  applyUiTranslations();
   refreshSession().then(() => loadSelectedScenario());
+
+  // CSV Export (professor)
+  btnExportCsv?.addEventListener('click', async () => {
+    if (!session.user || session.user.role !== 'teacher') return;
+    const list = await api('list_results.php');
+    if (!list.ok) return;
+    const rows = list.results;
+    if (!rows.length) return;
+    const header = ['id','created_at','scenario','matricula'];
+    // Try to include some metrics fields (first payload metrics keys)
+    let metricKeys = [];
+    try {
+      const sample = rows[0];
+      if (sample && sample.payload && sample.payload.metrics) {
+        metricKeys = Object.keys(sample.payload.metrics).slice(0,6); // cap
+      }
+    } catch {}
+    const finalHeader = header.concat(metricKeys);
+    const lines = [finalHeader.join(',')];
+    rows.forEach(r => {
+      let metricsVals = [];
+      try { metricsVals = metricKeys.map(k => r.payload.metrics[k]); } catch { metricsVals = metricKeys.map(()=> ''); }
+      const base = [r.id, r.created_at, r.scenario, r.matricula||''];
+      lines.push(base.concat(metricsVals).join(','));
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'resultados.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 });
