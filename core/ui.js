@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // auth
   const matriculaInput = document.getElementById('matricula');
   const dobInput = document.getElementById('dob');
-  const tokenInput = document.getElementById('teacher-token');
   const btnRegisterTeacher = document.getElementById('btn-register-teacher');
   const studMat = document.getElementById('stud-mat');
   const studDob = document.getElementById('stud-dob');
@@ -110,8 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   btnRegisterTeacher?.addEventListener('click', async () => {
-    const out = await api('register.php','POST', { matricula: matriculaInput.value.trim(), dob: dobInput.value.trim(), token: tokenInput.value.trim() });
-    authStatus.textContent = out.ok ? 'Professor cadastrado. Faça login.' : ('Erro: ' + (out.error || 'falha no cadastro'));
+    const out = await api('register.php','POST', { matricula: matriculaInput.value.trim(), dob: dobInput.value.trim() });
+    if (out.ok && out.role === 'teacher') {
+      authStatus.textContent = 'Primeiro usuário cadastrado como Professor. Agora faça login.';
+    } else if (out.ok) {
+      authStatus.textContent = 'Aluno cadastrado. Faça login (ou continue).';
+    } else {
+      authStatus.textContent = 'Erro: ' + (out.error || 'falha no cadastro');
+    }
   });
 
   btnRegisterStudent?.addEventListener('click', async () => {
