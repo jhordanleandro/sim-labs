@@ -28,6 +28,13 @@
     </div>
   </header>
   <main class="container my-3">
+    <nav id="app-nav" class="card p-2 mb-3">
+      <ul class="nav nav-pills justify-content-center gap-2">
+        <li class="nav-item"><button class="nav-link active" data-view="simulator">Simulador</button></li>
+        <li class="nav-item"><button class="nav-link" data-view="results">Resultados</button></li>
+        <li class="nav-item"><button class="nav-link" data-view="help">Ajuda</button></li>
+      </ul>
+    </nav>
     <section id="auth-panel" class="card p-3 mb-3">
       <strong class="mb-2">Acesso</strong>
       <div class="row g-2 align-items-center auth-grid">
@@ -58,10 +65,10 @@
       <div id="students-list" class="text-secondary mt-2"></div>
     </section>
 
-    <section id="help-panel" class="card p-3 mb-3">
+    <section id="help-panel" class="card p-3 mb-3" data-view-panel="help" style="display:none;">
       <h2 class="h5">Como usar</h2>
       <ul class="help-list mb-0">
-        <li>Faça login com sua matrícula e data de nascimento. Professores usam um token apenas no cadastro.</li>
+        <li>Faça login com sua matrícula e data de nascimento. O primeiro usuário cadastrado torna-se Professor.</li>
         <li>Após logar, escolha um cenário, opcionalmente defina o alvo e clique em “Iniciar Simulação”.</li>
         <li>Acompanhe as Métricas, leia as explicações em Teoria, responda ao Quiz.</li>
         <li>Use os Controles (WAF, rate limit, etc.) e observe o impacto nas métricas e logs.</li>
@@ -74,11 +81,12 @@
     </div>
 
     <div id="app-content" style="display:none;">
-      <section id="scenario-select" class="card p-3 mb-3">
+      <section id="scenario-select" class="card p-3 mb-3" data-view-panel="simulator">
         <div class="row g-2 align-items-center">
-          <div class="col-12 col-md-4">
-            <label for="scenario" class="form-label mb-1">Escolha o cenário:</label>
-            <select id="scenario" class="form-select"></select>
+          <div class="col-12 col-md-9">
+            <label class="form-label mb-1">Escolha o cenário:</label>
+            <div id="scenario-buttons" class="btn-group flex-wrap" role="group"></div>
+            <select id="scenario" class="form-select d-none"></select>
           </div>
           <div class="col-12 col-md-5">
             <label for="target-input" class="form-label mb-1">Alvo:</label>
@@ -90,29 +98,36 @@
         </div>
       </section>
 
-      <section id="metrics-panel" class="card p-3 mb-3">
-        <h2 class="h5" data-i18n="metrics">Métricas</h2>
-        <div id="metrics" class="mb-2"></div>
-        <canvas id="metrics-graph" width="400" height="120"></canvas>
-      </section>
-      <section id="controls-panel" class="card p-3 mb-3">
-        <h2 class="h5" data-i18n="controls">Controles</h2>
-        <form id="controls" class="d-flex flex-wrap gap-2"></form>
-      </section>
-      <section id="log-panel" class="card p-3 mb-3">
-        <h2 class="h5" data-i18n="logs">Logs</h2>
-        <div id="logs"></div>
-      </section>
-      <section id="theory-panel" class="card p-3 mb-3">
-        <h2 class="h5" data-i18n="theory">Teoria / Explicação</h2>
-        <div id="theory" class="theory-box"></div>
-      </section>
-      <section id="quiz-panel" class="card p-3 mb-3">
-        <h2 class="h5" data-i18n="quiz">Quiz</h2>
-        <div id="quiz"></div>
+      <section id="simulator-tabs" class="card p-3 mb-3" data-view-panel="simulator">
+        <ul class="nav nav-tabs mb-3" id="sim-tabs">
+          <li class="nav-item"><button class="nav-link active" data-pane="metrics" data-i18n="metrics">Métricas</button>
+          </li>
+          <li class="nav-item"><button class="nav-link" data-pane="controls" data-i18n="controls">Controles</button>
+          </li>
+          <li class="nav-item"><button class="nav-link" data-pane="logs" data-i18n="logs">Logs</button></li>
+          <li class="nav-item"><button class="nav-link" data-pane="theory" data-i18n="theory">Teoria /
+              Explicação</button></li>
+          <li class="nav-item"><button class="nav-link" data-pane="quiz" data-i18n="quiz">Quiz</button></li>
+        </ul>
+        <div id="pane-metrics" class="pane" style="display:block;">
+          <div id="metrics" class="mb-2"></div>
+          <canvas id="metrics-graph" width="400" height="160"></canvas>
+        </div>
+        <div id="pane-controls" class="pane" style="display:none;">
+          <form id="controls" class="d-flex flex-wrap gap-2"></form>
+        </div>
+        <div id="pane-logs" class="pane" style="display:none;">
+          <div id="logs"></div>
+        </div>
+        <div id="pane-theory" class="pane" style="display:none;">
+          <div id="theory" class="theory-box"></div>
+        </div>
+        <div id="pane-quiz" class="pane" style="display:none;">
+          <div id="quiz"></div>
+        </div>
       </section>
 
-      <section id="results-panel" class="card p-3 mb-3" style="display:none">
+      <section id="results-panel" class="card p-3 mb-3" data-view-panel="results" style="display:none">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0" data-i18n="results">Resultados</h2>
           <button id="btn-export-csv" type="button" class="btn btn-sm btn-outline-info" data-i18n="export_csv">Exportar

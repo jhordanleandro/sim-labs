@@ -34,11 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginRequired = document.getElementById('login-required');
   const langSelect = document.getElementById('lang-select');
   const btnExportCsv = document.getElementById('btn-export-csv');
+  const appNav = document.getElementById('app-nav');
+  const scenarioButtons = document.getElementById('scenario-buttons');
 
   let currentScenario = null;
   let metricsHistory = [];
   let lang = 'pt';
   let session = { user: null };
+  let currentView = 'simulator';
+  let currentPane = 'metrics';
   const uiDict = {
     pt: {
       title: 'Simulador Educacional de Redes e Segurança',
@@ -94,14 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (session.user) {
       authStatus.textContent = session.user.role === 'teacher' ? 'Logado (Professor)' : 'Logado (Aluno)';
       btnLogout.style.display = '';
-      resultsPanel.style.display = '';
       appContent.style.display = '';
       loginRequired.style.display = 'none';
       teacherPanel.style.display = session.user.role === 'teacher' ? '' : 'none';
     } else {
       authStatus.textContent = 'Não logado';
       btnLogout.style.display = 'none';
-      resultsPanel.style.display = 'none';
       appContent.style.display = 'none';
       loginRequired.style.display = '';
       teacherPanel.style.display = 'none';
@@ -209,6 +211,33 @@ document.addEventListener('DOMContentLoaded', () => {
     opt.textContent = s.label;
     scenarioSelect.appendChild(opt);
   });
+  // Cenários como botões
+  if (scenarioButtons) {
+    scenarios.forEach(s => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-outline-light me-2 mb-2';
+      btn.textContent = s.label;
+      btn.dataset.file = s.file;
+      btn.addEventListener('click', () => {
+        scenarioSelect.value = s.file;
+        updateScenarioButtonsActive(s.file);
+        loadSelectedScenario();
+      });
+      scenarioButtons.appendChild(btn);
+    });
+  }
+
+  function updateScenarioButtonsActive(activeFile) {
+    if (!scenarioButtons) return;
+    scenarioButtons.querySelectorAll('button').forEach(b => {
+      if (b.dataset.file === activeFile) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+  }
 
   // Carrega cenário selecionado
   async function loadSelectedScenario() {
@@ -219,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentScenario = data;
     metricsHistory = [];
     Engine.loadScenario(data, { lang, target: targetInput.value });
+    updateScenarioButtonsActive(file);
   }
 
   scenarioSelect.addEventListener('change', loadSelectedScenario);
@@ -227,6 +257,53 @@ document.addEventListener('DOMContentLoaded', () => {
     Engine.reset(targetInput.value);
     metricsHistory = [];
     clearGraph();
+  });
+
+  // Navegação de visões (Simulador / Resultados / Ajuda)
+  function setView(view) {
+    currentView = view;
+    // ativa button
+    appNav?.querySelectorAll('[data-view]').forEach(b => {
+      if (b.getAttribute('data-view') === view) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+    // mostra painéis
+    document.querySelectorAll('[data-view-panel]')?.forEach(sec => {
+      const v = sec.getAttribute('data-view-panel');
+      sec.style.display = (v === view) ? '' : 'none';
+    });
+    // respeita gating do login para appContent
+    if (!session.user) {
+      // mantém help acessível mesmo sem login
+      if (view !== 'help') {
+        // mostra aviso de login
+        loginRequired.style.display = '';
+      } else {
+        loginRequired.style.display = 'none';
+      }
+    } else {
+      loginRequired.style.display = 'none';
+    }
+  }
+
+  appNav?.querySelectorAll('[data-view]')?.forEach(b => {
+    b.addEventListener('click', () => setView(b.getAttribute('data-view')));
+  });
+
+  // Abas do simulador (Métricas/Controles/Logs/Teoria/Quiz)
+  function setPane(pane) {
+    currentPane = pane;
+    document.querySelectorAll('#sim-tabs [data-pane]')?.forEach(b => {
+      if (b.getAttribute('data-pane') === pane) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+    ['metrics','controls','logs','theory','quiz'].forEach(p => {
+      const el = document.getElementById('pane-' + p);
+      if (el) el.style.display = (p === pane) ? 'block' : 'none';
+    });
+  }
+  document.querySelectorAll('#sim-tabs [data-pane]')?.forEach(b => {
+    b.addEventListener('click', () => setPane(b.getAttribute('data-pane')));
   });
 
   // Atualiza painel de métricas
@@ -454,6 +531,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inicializa
   applyUiTranslations();
   refreshSession().then(() => loadSelectedScenario());
+  // estado inicial
+  setView('simulator');
+  setPane('metrics');
 
   // CSV Export (professor)
   btnExportCsv?.addEventListener('click', async () => {
