@@ -15,6 +15,7 @@ jobs:
         with:
           php-version: "8.3"
           extensions: pdo_sqlite
+          coverage: none
       - name: Sintaxe do PHP
         run: for f in api/*.php; do php -l "$f"; done
       - name: Sintaxe do JavaScript

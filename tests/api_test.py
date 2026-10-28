@@ -162,7 +162,9 @@ def main():
         server.terminate()
         _, err = server.communicate(timeout=5)
         shutil.rmtree(tmp, ignore_errors=True)
-    php_errors = [l for l in err.splitlines() if any(w in l for w in ("Fatal", "Warning", "Notice", "Deprecated"))]
+    # Só conta avisos do código do projeto (ignora os de inicialização do próprio PHP)
+    php_errors = [l for l in err.splitlines()
+                  if any(w in l for w in ("Fatal", "Warning", "Notice", "Deprecated")) and str(app) in l]
     for line in php_errors:
         print("  PHP:", line)
     total = failures + len(php_errors)
