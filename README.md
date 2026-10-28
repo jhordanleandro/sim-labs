@@ -1,5 +1,7 @@
 # Sim Labs — Laboratórios Didáticos Offline (HTML/CSS/JS)
 
+[![Testes](https://github.com/jhordanleandro/sim-labs/actions/workflows/tests.yml/badge.svg)](https://github.com/jhordanleandro/sim-labs/actions/workflows/tests.yml)
+
 Simulador educacional modular e 100% offline para práticas de Redes e Segurança. Estrutura separa motor de simulação (engine) e interface (ui), com cenários configuráveis via JSON. Inclui métricas, logs, controles, teoria por etapa, quiz, gráficos e exportação de resultados.
 
 **[▶ Testar online](https://jhordanleandro.github.io/sim-labs/)**. Na demonstração, os cenários funcionam completos; só o login e o envio de resultados ao servidor ficam desativados.
@@ -68,6 +70,10 @@ Com base nos cronogramas das disciplinas do curso técnico:
 ## Avaliação e Exportação
 - Exporta JSON com métricas, logs, respostas e decisões de controle para facilitar correção.
 - Sugestão: agregar nota por rubrica (acertos no quiz, configuração adequada de controles e análise do relatório).
+
+## Testes
+- `python3 tests/api_test.py` testa login, senha própria, cadastro e o prazo do 1º professor contra o PHP real (precisa do `php` com `pdo_sqlite`). O servidor sobe numa cópia temporária, sem tocar na pasta `data/`.
+- Os testes rodam a cada push pelo GitHub Actions.
 
 ## Como Estender
 - Duplique um arquivo em `scenarios/` e ajuste `dict`, `metrics`, `controls`, `steps`, `theory`, `questions` e `metricHints`.
