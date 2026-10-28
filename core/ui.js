@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnFilter = document.getElementById('btn-filter');
   const appContent = document.getElementById('app-content');
   const loginRequired = document.getElementById('login-required');
+  const authPanel = document.getElementById('auth-panel');
+  const demoNotice = document.getElementById('demo-notice');
   const langSelect = document.getElementById('lang-select');
   const btnExportCsv = document.getElementById('btn-export-csv');
   const appNav = document.getElementById('app-nav');
@@ -40,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentScenario = null;
   let metricsHistory = [];
   let lang = 'pt';
-  let session = { user: null };
+  let session = { user: null, demo: false };
   let currentView = 'simulator';
   let currentPane = 'metrics';
   const uiDict = {
@@ -90,7 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
       updateAuthUI();
       if (session.user) loadResults();
     } catch (e) {
-      session.user = null; updateAuthUI();
+      // Sem servidor PHP (ex.: GitHub Pages): entra em modo demonstração
+      session.user = null; session.demo = true; updateAuthUI();
     }
   }
 
@@ -101,6 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
       appContent.style.display = '';
       loginRequired.style.display = 'none';
       teacherPanel.style.display = session.user.role === 'teacher' ? '' : 'none';
+    } else if (session.demo) {
+      authPanel.style.display = 'none';
+      appContent.style.display = '';
+      loginRequired.style.display = 'none';
+      demoNotice.style.display = '';
+      teacherPanel.style.display = 'none';
+      const resultsNavBtn = appNav?.querySelector('[data-view="results"]');
+      if (resultsNavBtn) resultsNavBtn.style.display = 'none';
     } else {
       authStatus.textContent = 'Não logado';
       btnLogout.style.display = 'none';
@@ -273,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sec.style.display = (v === view) ? '' : 'none';
     });
     // respeita gating do login para appContent
-    if (!session.user) {
+    if (!session.user && !session.demo) {
       // mantém help acessível mesmo sem login
       if (view !== 'help') {
         // mostra aviso de login
