@@ -80,6 +80,8 @@ def test_fluxo_completo(base, db):
     check("sem senha não salva resultado", aluno.call("save_result.php", {"scenario": "x", "payload": {}}), 401, error="unauthorized")
     check("aluno cria a senha", aluno.call("set_password.php", {"password": "AlunoSenha1"}), 200, ok=True)
     check("aluno salva resultado", aluno.call("save_result.php", {"scenario": "ddos-basic", "payload": {"a": 1}}), 200, ok=True)
+    check("cenário com HTML é recusado", aluno.call("save_result.php", {"scenario": "<img src=x onerror=alert(1)>", "payload": {}}), 400, error="invalid_scenario")
+    check("cenário que não é texto é recusado", aluno.call("save_result.php", {"scenario": ["ddos-basic"], "payload": {}}), 400, error="invalid_scenario")
     check("criar senha fora do 1º acesso é negado", aluno.call("set_password.php", {"password": "OutraSenha9"}), 403, error="forbidden")
     aluno.call("logout.php", {})
     check("data de nascimento não serve mais", aluno.call("login.php", {"matricula": "aluno1", "senha": "2008-05-12"}), 401, error="invalid_credentials")

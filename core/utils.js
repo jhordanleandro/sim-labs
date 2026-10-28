@@ -27,6 +27,11 @@ function formatTime() {
   return d.toLocaleTimeString('pt-BR', { hour12: false });
 }
 
+/** Escapa texto para inserir com innerHTML sem que vire HTML */
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 /** Traduz uma chave usando dicionário atual */
 function t(key, dict) {
   return (dict && dict[key]) || key;

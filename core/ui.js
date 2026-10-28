@@ -157,10 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!session.user || session.user.role !== 'teacher') return;
     const r = await api('students.php?action=list');
     if (!r.ok) { studentsList.textContent = 'Falha ao carregar alunos.'; return; }
-    studentsList.innerHTML = r.students.map(s => `<div class="mb-1">#${s.id} - ${s.matricula} (desde ${s.created_at})${
+    studentsList.innerHTML = r.students.map(s => `<div class="mb-1">#${Number(s.id)} - ${escapeHtml(s.matricula)} (desde ${escapeHtml(s.created_at)})${
       Number(s.must_set_password)
         ? ' · aguardando 1º acesso'
-        : ` <button type="button" class="btn btn-sm btn-outline-warning ms-2" data-reset-id="${s.id}">Redefinir senha</button>`
+        : ` <button type="button" class="btn btn-sm btn-outline-warning ms-2" data-reset-id="${Number(s.id)}">Redefinir senha</button>`
     }</div>`).join('');
   }
 
@@ -218,9 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!list.ok) { resultsDiv.textContent = 'Falha ao carregar resultados'; return; }
     const rows = list.results;
     resultsDiv.innerHTML = rows.map(r => {
-      const who = r.matricula ? ` (Aluno: ${r.matricula})` : '';
+      const who = r.matricula ? ` (Aluno: ${escapeHtml(r.matricula)})` : '';
       const pdfUrl = `api/report_html.php?id=${encodeURIComponent(r.id)}`;
-      return `<div>(${r.created_at}) Cenário: ${r.scenario}${who} - <a href="#" data-id="${r.id}" class="view-res">ver</a> | <a href="#" data-id="${r.id}" class="dl-res">baixar</a> | <a href="${pdfUrl}" target="_blank">PDF</a></div>`;
+      return `<div>(${escapeHtml(r.created_at)}) Cenário: ${escapeHtml(r.scenario)}${who} - <a href="#" data-id="${Number(r.id)}" class="view-res">ver</a> | <a href="#" data-id="${Number(r.id)}" class="dl-res">baixar</a> | <a href="${pdfUrl}" target="_blank">PDF</a></div>`;
     }).join('');
     resultsDiv.querySelectorAll('.view-res').forEach(a => a.addEventListener('click', async (e) => {
       e.preventDefault();
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.keys(schema).forEach(k => {
       const m = document.createElement('div');
       m.className = 'metric';
-      m.innerHTML = `<strong>${t(k, dict)}</strong><br>${metrics[k]}`;
+      m.innerHTML = `<strong>${escapeHtml(t(k, dict))}</strong><br>${escapeHtml(metrics[k])}`;
       metricsDiv.appendChild(m);
     });
     // Gráfico
@@ -374,7 +374,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Atualiza painel de logs
   Engine.onLog((entry, all) => {
-    const last = all.slice(-50).join('<br>');
+    // Os logs incluem o alvo digitado pelo aluno, então entram como texto
+    const last = all.slice(-50).map(escapeHtml).join('<br>');
     logsDiv.innerHTML = last;
     logsDiv.scrollTop = logsDiv.scrollHeight;
   });
