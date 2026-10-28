@@ -89,14 +89,17 @@ Com base nos cronogramas das disciplinas do curso técnico:
 - Segurança: `.htaccess` em `sim-labs/data/` bloqueia acesso direto aos arquivos.
 - Compatibilidade: `index.php` serve o `index.html` automaticamente se a hospedagem priorizar PHP.
 - Acesso:
-  - Professor: o primeiro cadastro feito no sistema recebe o papel de professor. Faça esse cadastro logo após a migração.
-  - Aluno: cadastrado pelo professor (matrícula + data de nascimento AAAA-MM-DD) e entra com esses mesmos dados.
+  - Professor: o primeiro cadastro feito no sistema recebe o papel de professor. Esse cadastro só fica aberto nos 60 minutos seguintes à migração; numa instalação que passou desse prazo sem professor, apague `data/app.sqlite` e rode a migração de novo.
+  - Aluno: cadastrado pelo professor (matrícula + data de nascimento AAAA-MM-DD).
+  - Primeiro acesso: todos entram com a matrícula e a data de nascimento e criam uma senha (mínimo de 8 caracteres). Depois, entram com a matrícula e a senha.
+  - Atualização: bancos criados por versões anteriores são ajustados automaticamente. No próximo acesso, cada usuário entra com a data de nascimento e cria a senha.
   - Resultados: “Exportar Resultados” envia ao servidor quando logado; painel “Resultados” lista, filtra, mostra e permite baixar cada tentativa.
 
 ### Acompanhamento (professor)
 - Painel “Resultados” com filtros por cenário e período (data inicial/final).
 - Clique em “ver” para expandir o JSON na página ou “baixar” para salvar.
-- No painel do professor, cadastre alunos e veja a lista de cadastrados.
+- No painel do professor, cadastre alunos e veja quem ainda não fez o primeiro acesso.
+- Senha esquecida: “Redefinir senha” faz o aluno voltar a entrar com a data de nascimento e criar outra senha.
 
 ### Relatórios em PDF
 - No painel “Resultados”, clique em “PDF” para abrir o relatório.

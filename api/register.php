@@ -9,10 +9,12 @@ if (!$mat || !$dob) json_out(['error'=>'missing_fields'], 400);
 // Verifica se já existe professor
 $hasTeacher = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role='teacher'")->fetchColumn() > 0;
 
-// Caso não exista professor ainda, primeiro cadastro vira professor
+// Caso não exista professor ainda, primeiro cadastro vira professor,
+// mas só nos 60 minutos seguintes à migração (migrate.php)
 if (!$hasTeacher) {
-  $pass = $mat . '|' . $dob;
-  $hash = password_hash($pass, PASSWORD_DEFAULT);
+  $elapsed = $pdo->query("SELECT (julianday('now') - julianday(value)) * 86400 FROM settings WHERE key='installed_at'")->fetchColumn();
+  if ($elapsed === false || (float)$elapsed > 3600) json_out(['error'=>'setup_window_closed'], 403);
+  $hash = initial_password_hash($mat, $dob);
   try {
     $stmt = $pdo->prepare('INSERT INTO users (matricula, dob, password_hash, role, created_at) VALUES (?,?,?,?,datetime("now"))');
     $stmt->execute([$mat, $dob, $hash, 'teacher']);
@@ -28,8 +30,7 @@ if (!is_teacher()) {
   json_out(['error'=>'forbidden'], 403);
 }
 
-$pass = $mat . '|' . $dob;
-$hash = password_hash($pass, PASSWORD_DEFAULT);
+$hash = initial_password_hash($mat, $dob);
 try {
   $stmt = $pdo->prepare('INSERT INTO users (matricula, dob, password_hash, role, created_at) VALUES (?,?,?,?,datetime("now"))');
   $stmt->execute([$mat, $dob, $hash, 'student']);

@@ -39,13 +39,23 @@
       <strong class="mb-2">Acesso</strong>
       <div class="row g-2 align-items-center auth-grid">
         <div class="col-12 col-md-4"><input id="matricula" class="form-control" placeholder="Matrícula"></div>
-        <div class="col-12 col-md-4"><input id="dob" class="form-control" placeholder="Data de nascimento (AAAA-MM-DD)">
-        </div>
+        <div class="col-12 col-md-4"><input id="dob" type="password" class="form-control"
+            placeholder="Senha (1º acesso: nascimento AAAA-MM-DD)"></div>
         <div class="col-12 d-flex gap-2 auth-actions mt-1">
           <button id="btn-login" type="button" class="btn btn-primary">Entrar</button>
           <button id="btn-register-teacher" type="button" class="btn btn-secondary">Cadastrar (Primeiro vira
             Professor)</button>
           <button id="btn-logout" type="button" class="btn btn-outline-light" style="display:none">Sair</button>
+        </div>
+        <div id="set-password-panel" class="col-12" style="display:none;">
+          <div class="row g-2 align-items-center">
+            <div class="col-12 col-md-4"><input id="new-password" type="password" class="form-control"
+                placeholder="Nova senha (mínimo 8 caracteres)"></div>
+            <div class="col-12 col-md-4"><input id="new-password-confirm" type="password" class="form-control"
+                placeholder="Repita a nova senha"></div>
+            <div class="col-12 col-md-4"><button id="btn-set-password" type="button" class="btn btn-warning">Criar
+                senha</button></div>
+          </div>
         </div>
         <div class="col-12"><span id="auth-status" class="text-secondary"></span></div>
       </div>
@@ -68,7 +78,8 @@
     <section id="help-panel" class="card p-3 mb-3" data-view-panel="help" style="display:none;">
       <h2 class="h5">Como usar</h2>
       <ul class="help-list mb-0">
-        <li>Faça login com sua matrícula e data de nascimento. O primeiro usuário cadastrado torna-se Professor.</li>
+        <li>No primeiro acesso, entre com sua matrícula e data de nascimento e crie uma senha. Depois, use a matrícula e a
+          senha. O primeiro cadastro, feito até 60 minutos após a migração, torna-se Professor.</li>
         <li>Após logar, escolha um cenário, opcionalmente defina o alvo e clique em “Iniciar Simulação”.</li>
         <li>Acompanhe as Métricas, leia as explicações em Teoria, responda ao Quiz.</li>
         <li>Use os Controles (WAF, rate limit, etc.) e observe o impacto nas métricas e logs.</li>

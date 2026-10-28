@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnLogin = document.getElementById('btn-login');
   const btnLogout = document.getElementById('btn-logout');
   const authStatus = document.getElementById('auth-status');
+  const setPasswordPanel = document.getElementById('set-password-panel');
+  const newPassword = document.getElementById('new-password');
+  const newPasswordConfirm = document.getElementById('new-password-confirm');
+  const btnSetPassword = document.getElementById('btn-set-password');
   const resultsPanel = document.getElementById('results-panel');
   const resultsDiv = document.getElementById('results');
   const filterScenario = document.getElementById('filter-scenario');
@@ -42,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentScenario = null;
   let metricsHistory = [];
   let lang = 'pt';
-  let session = { user: null, demo: false };
+  let session = { user: null, demo: false, mustSetPassword: false };
   let currentView = 'simulator';
   let currentPane = 'metrics';
   const uiDict = {
@@ -89,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const me = await api('me.php');
       session.user = me.user;
+      session.mustSetPassword = !!me.must_set_password;
       updateAuthUI();
       if (session.user) loadResults();
     } catch (e) {
@@ -98,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateAuthUI() {
+    setPasswordPanel.style.display = session.mustSetPassword ? '' : 'none';
     if (session.user) {
       authStatus.textContent = session.user.role === 'teacher' ? 'Logado (Professor)' : 'Logado (Aluno)';
       btnLogout.style.display = '';
@@ -113,8 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const resultsNavBtn = appNav?.querySelector('[data-view="results"]');
       if (resultsNavBtn) resultsNavBtn.style.display = 'none';
     } else {
-      authStatus.textContent = 'Não logado';
-      btnLogout.style.display = 'none';
+      authStatus.textContent = session.mustSetPassword ? 'Primeiro acesso: crie sua senha para continuar.' : 'Não logado';
+      btnLogout.style.display = session.mustSetPassword ? '' : 'none';
       appContent.style.display = 'none';
       loginRequired.style.display = '';
       teacherPanel.style.display = 'none';
@@ -127,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
       authStatus.textContent = 'Primeiro usuário cadastrado como Professor. Agora faça login.';
     } else if (out.ok) {
       authStatus.textContent = 'Aluno cadastrado. Faça login (ou continue).';
+    } else if (out.error === 'setup_window_closed') {
+      authStatus.textContent = 'O cadastro do primeiro professor só fica aberto por 60 minutos após a migração.';
     } else {
       authStatus.textContent = 'Erro: ' + (out.error || 'falha no cadastro');
     }
@@ -149,18 +157,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!session.user || session.user.role !== 'teacher') return;
     const r = await api('students.php?action=list');
     if (!r.ok) { studentsList.textContent = 'Falha ao carregar alunos.'; return; }
-    studentsList.innerHTML = r.students.map(s => `<div>#${s.id} - ${s.matricula} (desde ${s.created_at})</div>`).join('');
+    studentsList.innerHTML = r.students.map(s => `<div class="mb-1">#${s.id} - ${s.matricula} (desde ${s.created_at})${
+      Number(s.must_set_password)
+        ? ' · aguardando 1º acesso'
+        : ` <button type="button" class="btn btn-sm btn-outline-warning ms-2" data-reset-id="${s.id}">Redefinir senha</button>`
+    }</div>`).join('');
   }
 
-  btnLogin?.addEventListener('click', async () => {
-    const out = await api('login.php','POST', { matricula: matriculaInput.value.trim(), dob: dobInput.value.trim() });
+  studentsList?.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('[data-reset-id]');
+    if (!btn) return;
+    const out = await api('students.php?action=reset_password','POST', { id: Number(btn.dataset.resetId) });
     if (out.ok) {
+      authStatus.textContent = 'Senha redefinida: o aluno entra com a data de nascimento e cria uma nova senha.';
+      loadStudents();
+    } else {
+      authStatus.textContent = 'Erro: ' + (out.error || 'falha ao redefinir senha');
+    }
+  });
+
+  btnLogin?.addEventListener('click', async () => {
+    const out = await api('login.php','POST', { matricula: matriculaInput.value.trim(), senha: dobInput.value });
+    if (out.ok) {
+      dobInput.value = '';
       await refreshSession();
+      if (out.must_set_password) newPassword.focus();
       loadStudents();
     } else {
       authStatus.textContent = 'Erro: ' + (out.error || 'login falhou');
     }
   });
+  btnSetPassword?.addEventListener('click', async () => {
+    if (newPassword.value.length < 8) { authStatus.textContent = 'A senha precisa ter pelo menos 8 caracteres.'; return; }
+    if (newPassword.value !== newPasswordConfirm.value) { authStatus.textContent = 'As senhas não conferem.'; return; }
+    const out = await api('set_password.php','POST', { password: newPassword.value });
+    if (out.ok) {
+      newPassword.value = ''; newPasswordConfirm.value = '';
+      await refreshSession();
+      loadStudents();
+    } else {
+      authStatus.textContent = 'Erro: ' + (out.error || 'falha ao criar senha');
+    }
+  });
+
   btnLogout?.addEventListener('click', async () => {
     await api('logout.php','POST',{});
     await refreshSession();
