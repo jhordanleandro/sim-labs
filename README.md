@@ -3,7 +3,7 @@
 Simulador educacional modular e 100% offline para práticas de Redes e Segurança. Estrutura separa motor de simulação (engine) e interface (ui), com cenários configuráveis via JSON. Inclui métricas, logs, controles, teoria por etapa, quiz, gráficos e exportação de resultados.
 
 ## Como Usar
-- Abra `index.html` no navegador (sem servidor).
+- Abra `index.html` no navegador (sem servidor). Login e envio de resultados exigem o servidor PHP (veja [Hospedagem](#hospedagem-hostinger-e-acompanhamento)).
 - Escolha um cenário no seletor, informe um alvo (quando aplicável) e inicie.
 - Acompanhe painéis de Métricas, Logs, Teoria e Quiz. A qualquer momento, exporte os resultados.
 
@@ -20,7 +20,7 @@ Simulador educacional modular e 100% offline para práticas de Redes e Seguranç
 - `arp-spoof.json`: pacotes ARP falsificados; controles: Port Security, DHCP Snooping.
 
 ## Alinhamento Curricular
-Com base nos PDFs em `pdf-disciplinas/`:
+Com base nos cronogramas das disciplinas do curso técnico:
 - Redes de Computadores (60h): fundamentos, topologias, modelo OSI/TCP-IP, protocolos (HTTP/DNS/DHCP/SMTP/FTP/SSH), Ethernet, ARP/ICMP, VPN, VLAN, Firewall, NAT, IPv4/IPv6, endereçamento/sub-redes, serviços (Web/FTP/BD).
 - Segurança em SI (40h): introdução, requisitos (CIA + privacidade, autenticidade, legalidade), controle de acesso, varreduras, IDS, invasores e ameaças, criptografia (simétrica/assimétrica/hash/assinatura), LGPD, ISO 27001, plano de ação.
 
@@ -81,21 +81,23 @@ Com base nos PDFs em `pdf-disciplinas/`:
 ## Hospedagem (Hostinger) e acompanhamento
 - Envie `sim-labs/` para `public_html/`.
 - Rode a migração: acesse `https://SEU_DOMINIO/sim-labs/api/migrate.php` uma vez.
-- Defina o token do professor em `sim-labs/data/admin_token.txt`.
 - Garanta permissão de escrita para `sim-labs/data/`.
 - Segurança: `.htaccess` em `sim-labs/data/` bloqueia acesso direto aos arquivos.
 - Compatibilidade: `index.php` serve o `index.html` automaticamente se a hospedagem priorizar PHP.
 - Acesso:
-  - Aluno: cadastra (matrícula + data de nascimento AAAA-MM-DD) e entra.
-  - Professor: cadastra-se usando o token e entra normalmente.
+  - Professor: o primeiro cadastro feito no sistema recebe o papel de professor. Faça esse cadastro logo após a migração.
+  - Aluno: cadastrado pelo professor (matrícula + data de nascimento AAAA-MM-DD) e entra com esses mesmos dados.
   - Resultados: “Exportar Resultados” envia ao servidor quando logado; painel “Resultados” lista, filtra, mostra e permite baixar cada tentativa.
 
 ### Acompanhamento (professor)
 - Painel “Resultados” com filtros por cenário e período (data inicial/final).
 - Clique em “ver” para expandir o JSON na página ou “baixar” para salvar.
-- Para registrar professor, use o token de `data/admin_token.txt` apenas no momento do cadastro; o login depois é apenas com matrícula+data.
+- No painel do professor, cadastre alunos e veja a lista de cadastrados.
 
 ### Relatórios em PDF
 - No painel “Resultados”, clique em “PDF” para abrir o relatório.
 - Use o botão “Imprimir / Salvar em PDF” do navegador para gerar o arquivo.
 - O relatório inclui cabeçalho com matrícula, cenário, data, tabela de métricas e controles, e logs.
+
+## Licença
+Distribuído sob a [licença MIT](LICENSE).
