@@ -88,12 +88,12 @@ const Engine = (function() {
     }
     for (let action of step.actions) {
       if (!running) break;
-      await doAction(action);
+      await doAction(action, step.title);
     }
   }
 
   // Executa uma ação (simulada)
-  async function doAction(action) {
+  async function doAction(action, stepTitle) {
     // Delay simulado
     if (action.delay) await sleep(action.delay);
     // Atualiza métricas
@@ -109,8 +109,8 @@ const Engine = (function() {
       checkMetricHints(before, state.metrics);
       prevMetrics = deepClone(state.metrics);
     }
-    // Log
-    if (action.log) log(t(action.log, dict));
+    // Log (o título da etapa já foi registrado em runStep)
+    if (action.log && action.log !== stepTitle) log(t(action.log, dict));
     // Ações especiais
     if (action.special) {
       await specialAction(action.special);
