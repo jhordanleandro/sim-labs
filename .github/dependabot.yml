@@ -1,0 +1,13 @@
+# O projeto não usa gerenciador de pacotes; só as actions da automação de testes são atualizadas.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+      include: scope
