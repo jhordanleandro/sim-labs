@@ -2,8 +2,12 @@
 
 Simulador educacional modular e 100% offline para práticas de Redes e Segurança. Estrutura separa motor de simulação (engine) e interface (ui), com cenários configuráveis via JSON. Inclui métricas, logs, controles, teoria por etapa, quiz, gráficos e exportação de resultados.
 
+**[▶ Testar online](https://jhordanleandro.github.io/sim-labs/)**. Na demonstração, os cenários funcionam completos; só o login e o envio de resultados ao servidor ficam desativados.
+
 ## Como Usar
-- Abra `index.html` no navegador (sem servidor). Login e envio de resultados exigem o servidor PHP (veja [Hospedagem](#hospedagem-hostinger-e-acompanhamento)).
+- Use a [demonstração online](https://jhordanleandro.github.io/sim-labs/) ou sirva a pasta localmente: `python3 -m http.server 8000` e abra `http://localhost:8000`.
+- Abrir o `index.html` direto do disco não funciona: o navegador bloqueia o carregamento dos cenários em JSON.
+- Login e envio de resultados exigem o servidor PHP (veja [Hospedagem](#hospedagem-hostinger-e-acompanhamento)).
 - Escolha um cenário no seletor, informe um alvo (quando aplicável) e inicie.
 - Acompanhe painéis de Métricas, Logs, Teoria e Quiz. A qualquer momento, exporte os resultados.
 
